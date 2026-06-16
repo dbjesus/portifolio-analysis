@@ -33,15 +33,6 @@ def baixar_dados(tickers: list[str], periodo: str = "2y") -> pd.DataFrame:
     volume = volume.loc[fechamento.index]
     return fechamento, volume
 
-#def baixar_volume(tickers: list[str], periodo: str = "2y") -> pd.DataFrame:
-    #raw = yf.download(
-        #tikers,
-        #period = periodo,
-        #interval=1d,
-        #auto_adjust=True,
-        #progress=False,
-        #)
-
 
 # Função calcular_retornos(df_precos):
 #   - Aplique pct_change() sobre o DataFrame de preços
@@ -66,13 +57,21 @@ def estatisticas(df_retornos: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
 
 #teste
 if __name__ == "__main__":
-    df = baixar_dados(TICKERS_ACOES, "1y")
+    df, df_vol= baixar_dados(TICKERS_ACOES, "1y")
+    print(df_vol)
     df_ret = calcular_retornos(df)
     mu, sigma = estatisticas(df_ret)
 
     # DataFrame auxiliar para inspecionar volatilidade por ativo
     tickers = df_ret.columns.tolist()
-    df_aux = pd.DataFrame({'ticker': tickers, 'sigma': sigma})
+    print(df_ret.columns.tolist())
+    print(df_vol.mean())
+    df_aux = pd.DataFrame({'ticker': tickers,
+                           'sigma': sigma,
+                           'mu' : mu,
+                           'vol medio' : df_vol.mean().to_numpy(),
+                           'preco medio': df.mean().to_numpy()
+                           })
     df_aux_sorted = df_aux.sort_values(by='sigma').reset_index(drop=True)
     print(df_aux_sorted)
 
