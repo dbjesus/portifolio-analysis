@@ -17,7 +17,7 @@ def calcular_mu_diario(df_ret):
     #   - pegue a última linha de df_ret com .iloc[-1]
     #   - converta para numpy array com .to_numpy()
     #   - retorne o vetor mu do dia corrente, shape (n_ativos,)
-    return df_ret.iloc[-1].to_numpy()
+    return df_ret.iloc[-2].to_numpy()
 
 # Função
 def calcular_sigma_hoje(sigma_movel):
@@ -31,14 +31,14 @@ def calcular_volume_hoje(df_vol):
     #   - pegue a última linha de df_vol com .iloc[-1]
     #   - converta para numpy array com .to_numpy()
     #   - retorne o vetor volume do dia corrente, shape (n_ativos,)
-    return df_vol.iloc[-1].to_numpy()
+    return df_vol.iloc[-2].to_numpy()
 
 # Função
 def calcular_preco_hoje(df):
     #   - pegue a última linha de df com .iloc[-1]
     #   - converta para numpy array com .to_numpy()
     #   - retorne o vetor preco do dia corrente, shape (n_ativos,)
-    return df.iloc[-1].to_numpy()
+    return df.iloc[-2].to_numpy()
 
 # bloco de teste:
 if __name__ == "__main__":
