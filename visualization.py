@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-
+import pandas as pd
 CORES = {
     "estabilidade": "#3266ad",
     "boltzmann":    "#BA7517",
@@ -91,6 +91,40 @@ def plot_performance_resumo(resumo):
 
     plt.show()
     return fig
+def calcular_evolucao_intraday(tickers, w, intervalo="1m"):
+    import yfinance as yf
+
+    raw = yf.download(
+        tickers,
+        period="1d",
+        interval=intervalo,
+        auto_adjust=True,
+        progress=False,
+    )
+    precos = raw["Close"]
+    precos = precos.dropna(how="all")
+    precos = precos.dropna(how="any")   # ← linha nova: remove qualquer minuto com NaN em qualquer ativo
+
+    retorno_acum = precos / precos.iloc[0] - 1
+    evolucao_portfolio = retorno_acum.to_numpy() @ w
+    evolucao_serie = pd.Series(evolucao_portfolio, index=precos.index)
+
+    return evolucao_serie
+
+def plot_evolucao_intraday(evolucao_serie):
+    fig, ax = plt.subplots(figsize=(10, 5))
+
+    ax.plot(evolucao_serie.index, evolucao_serie.values * 100, color="#3266ad", linewidth=1.2)
+    ax.axhline(0, color="gray", linewidth=0.8)
+
+    ax.set_xlabel("Horário")
+    ax.set_ylabel("Retorno acumulado (%)")
+    ax.set_title("Evolução intraday do portfólio - hoje")
+    plt.xticks(rotation=45)
+
+    plt.tight_layout()
+    plt.show()
+    return fig
 if __name__ == "__main__":
     from data_loader import baixar_dados, calcular_retornos, estatisticas, TICKERS_ACOES
     from portfolio import montar_portfolio
@@ -120,3 +154,7 @@ if __name__ == "__main__":
     retorno_diario = calcular_retorno_portfolio_diario(df_ret, w)
     resumo = calcular_performance_resumo(retorno_diario)
     plot_performance_resumo(resumo)
+    evolucao_hoje = calcular_evolucao_intraday(TICKERS_ACOES, w)
+    print(evolucao_hoje.tail(10))
+    evolucao_hoje = calcular_evolucao_intraday(TICKERS_ACOES, w)
+    plot_evolucao_intraday(evolucao_hoje)
