@@ -50,7 +50,10 @@ def calcular_pesos_boltzmann(E, kT):
     w = w_i/(w_i.sum())
     #   - retorne array de shape (n_ativos,) com os pesos somando 1
     return w
-
+def calcular_sensibilidade(w, sigma):
+    delta_M_up = (w * sigma).sum()
+    delta_M_down = -(w * sigma).sum()
+    return  (delta_M_up, delta_M_down)
 if __name__ == "__main__":
     # importe as funções do data_loader
     from data_loader import baixar_dados, calcular_retornos, estatisticas, TICKERS_ACOES

@@ -47,9 +47,39 @@ def plot_comparacao_sistemas(tickers, w_estab, w_boltz, w_agress):
 
     plt.show()
     return fig
+# Função
+def plot_heatmap_energia(tickers, E_cin, E_pot):
+    fig, ax = plt.subplots(1, 2, figsize=(14, 5))
+    ax[0].bar(tickers, E_cin)
+    ax[0].set_title("Energia Cinética")
+    ax[0].set_xticks(range(len(tickers)))
+    ax[0].set_xticklabels(tickers, rotation=45)
+    ax[1].bar(tickers, E_pot)
+    ax[1].set_title("Energia Potencial")
+    ax[1].set_xticks(range(len(tickers)))
+    ax[1].set_xticklabels(tickers, rotation=45)
+    plt.tight_layout()
+    plt.show()
+    return fig
+def plot_sensibilidade(delta_up, delta_down):
+    fig, ax = plt.subplots(figsize=(6, 5))
+
+    labels = ["+1σ", "-1σ"]
+    valores = [delta_up * 100, delta_down * 100]
+    cores = ["#3B6D11", "#A32D2D"]
+
+    ax.bar(labels, valores, color=cores)
+    ax.axhline(0, color="gray", linewidth=0.8)
+    ax.set_ylabel("ΔM (%)")
+    ax.set_title("Sensibilidade do portfólio a choque de mercado")
+
+    plt.show()
+    return fig
 if __name__ == "__main__":
     from data_loader import baixar_dados, calcular_retornos, estatisticas, TICKERS_ACOES
     from portfolio import montar_portfolio
+    from analytics import calcular_energia_cin, calcular_energia_pot
+    from analytics import calcular_sensibilidade
 
     df, df_vol = baixar_dados(TICKERS_ACOES, "1y")
     df_ret     = calcular_retornos(df)
@@ -57,9 +87,15 @@ if __name__ == "__main__":
     P          = df.mean().to_numpy()
     V          = df_vol.mean().to_numpy()
 
-    #w       = montar_portfolio(mu, sigma, P, V)
     w, w_estab, w_boltz, w_agress = montar_portfolio(mu, sigma, P, V)
     tickers = df_ret.columns.tolist()
 
     plot_pesos_finais(tickers, w * 100)
     plot_comparacao_sistemas(tickers, w_estab * 100, w_boltz * 100, w_agress * 100)
+
+    E_cin = calcular_energia_cin(P, V, mu)
+    E_pot = calcular_energia_pot(P, V, sigma)
+    plot_heatmap_energia(tickers, E_cin, E_pot)
+
+    delta_up, delta_down = calcular_sensibilidade(w, sigma)
+    plot_sensibilidade(delta_up, delta_down)
