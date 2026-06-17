@@ -75,6 +75,22 @@ def plot_sensibilidade(delta_up, delta_down):
 
     plt.show()
     return fig
+def plot_performance_resumo(resumo):
+    labels = list(resumo.keys())
+    valores = [v * 100 for v in resumo.values()]
+
+    verde = "#3B6D11"
+    vermelho = "#A32D2D"
+    cores = [verde if v >= 0 else vermelho for v in valores]
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.bar(labels, valores, color=cores)
+    ax.axhline(0, color="gray", linewidth=0.8)
+    ax.set_ylabel("Retorno (%)")
+    ax.set_title("Performance do portfólio por período")
+
+    plt.show()
+    return fig
 if __name__ == "__main__":
     from data_loader import baixar_dados, calcular_retornos, estatisticas, TICKERS_ACOES
     from portfolio import montar_portfolio
@@ -99,3 +115,8 @@ if __name__ == "__main__":
 
     delta_up, delta_down = calcular_sensibilidade(w, sigma)
     plot_sensibilidade(delta_up, delta_down)
+    from backtest import calcular_retorno_portfolio_diario, calcular_performance_resumo
+
+    retorno_diario = calcular_retorno_portfolio_diario(df_ret, w)
+    resumo = calcular_performance_resumo(retorno_diario)
+    plot_performance_resumo(resumo)
